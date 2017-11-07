@@ -5,19 +5,21 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 public class Main2Activity extends AppCompatActivity {
 
-    private Button startBtn, selectSoundBtn;
-    private TextView mTextView;
+    private ImageButton setTimeBtn, playBtn, selectSoundBtn;
+    private TextView mSoundView;
     private MediaPlayer mMediaPlayer;
     private int MediDuration = 3;
     private int soundPosition = -1;
     private ArrayList<Sound> sounds;
+    private ProgressBar mProgressBar;
 
 
     protected MediaPlayer.OnCompletionListener mCompleteListner = new MediaPlayer.OnCompletionListener() {
@@ -41,10 +43,10 @@ public class Main2Activity extends AppCompatActivity {
         sounds.add(new Sound("Waves","1min 16sec", R.raw.waves ));
         sounds.add(new Sound("Wind", "48sec", R.raw.waves));
 
-        startBtn = (Button) findViewById(R.id.startbtn);
-        selectSoundBtn = (Button) findViewById(R.id.selectSound);
-        mTextView = (TextView) findViewById(R.id.textView);
-
+        playBtn = (ImageButton) findViewById(R.id.playbtn);
+        selectSoundBtn = (ImageButton) findViewById(R.id.selectSound);
+        mSoundView = (TextView) findViewById(R.id.sound);
+        mProgressBar = (ProgressBar) findViewById(R.id.circularProgressBar);
 
         selectSoundBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,7 +81,8 @@ public class Main2Activity extends AppCompatActivity {
             String title = data.getStringExtra("Title");
             int position = data.getIntExtra("Position", 1);
             soundPosition = position;
-            mTextView.setText("Current Sound: \n\n" +title);
+            mSoundView.setText("");
+            mSoundView.setText(title);
         }
     }
 
@@ -88,6 +91,10 @@ public class Main2Activity extends AppCompatActivity {
             mMediaPlayer.release();
             mMediaPlayer = null;
         }
+    }
+
+    protected void setDurationClicked(View v){
+
     }
 
 }
