@@ -1,26 +1,39 @@
 package com.sundavey.mindfulrest;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
+import android.widget.Chronometer;
+import android.widget.Chronometer.OnChronometerTickListener;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class Main2Activity extends AppCompatActivity {
+import static com.sundavey.mindfulrest.R.id.sound;
+import static com.sundavey.mindfulrest.R.mipmap.stop;
+import static java.lang.Long.parseLong;
 
-    private ImageButton setTimeBtn, playBtn, selectSoundBtn;
-    private TextView mSoundView;
+public class Main2Activity extends AppCompatActivity implements OnChronometerTickListener{
+
+    private ImageButton playBtn, selectSoundBtn;
+    private TextView mSoundView, mPlaytv, mMintv;
     private MediaPlayer mMediaPlayer;
-    private int MediDuration = 3;
+    private long mediDuration = 0;
     private int soundPosition = -1;
     private ArrayList<Sound> sounds;
     private ProgressBar mProgressBar;
-
+    private Boolean isPlaying = false;
+    private Chronometer mChronometer;
+    private ObjectAnimator animation;
+    private long ChronometerTime = mediDuration * 60000;
 
     protected MediaPlayer.OnCompletionListener mCompleteListner = new MediaPlayer.OnCompletionListener() {
         @Override
@@ -45,8 +58,12 @@ public class Main2Activity extends AppCompatActivity {
 
         playBtn = (ImageButton) findViewById(R.id.playbtn);
         selectSoundBtn = (ImageButton) findViewById(R.id.selectSound);
-        mSoundView = (TextView) findViewById(R.id.sound);
+
+        mMintv = (TextView) findViewById(R.id.minuteInput);
+        mSoundView = (TextView) findViewById(sound);
         mProgressBar = (ProgressBar) findViewById(R.id.circularProgressBar);
+        mPlaytv = (TextView) findViewById(R.id.playtv);
+        mChronometer = (Chronometer) findViewById(R.id.chronometer);
 
         selectSoundBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,23 +72,81 @@ public class Main2Activity extends AppCompatActivity {
                 startActivityForResult(intent, 1);
             }
         });
+
+        mChronometer.setOnChronometerTickListener(new OnChronometerTickListener() {
+            @Override
+            public void onChronometerTick(Chronometer chronometer) {
+                String meditationTime = mMintv.getText().toString();
+                String ChronometerTime = "\"0" + meditationTime + ":00\"";
+                Log.d("Main2Activity", meditationTime);
+                Log.d("Main2Activity", ChronometerTime);
+                if(chronometer.getText().toString().equalsIgnoreCase(ChronometerTime)){
+                    mChronometer.stop();
+                    mChronometer.setFormat(null);
+                    animation.cancel();
+                }
+            }
+        });
     }
 
     protected void StartBtnClicked(View v){
+
         Sound sound;
+
         if(soundPosition == -1){
             sound = sounds.get(0);
-            releaseMediaPlayer();
-            mMediaPlayer = MediaPlayer.create(Main2Activity.this, sound.getSoundResourceId());
-            mMediaPlayer.start();
-            mMediaPlayer.setOnCompletionListener(mCompleteListner);
         }else{
             sound = sounds.get(soundPosition);
-            releaseMediaPlayer();
+        }
+        //true for PLAYing status false for paused status
+        Boolean soundPlaying = checkSoundStatus();
+        //when ready to play status
+        if(!soundPlaying) {
             mMediaPlayer = MediaPlayer.create(Main2Activity.this, sound.getSoundResourceId());
             mMediaPlayer.start();
             mMediaPlayer.setOnCompletionListener(mCompleteListner);
+            mChronometer.setBase(SystemClock.elapsedRealtime());
+            mChronometer.start();
+            playBtn.setBackgroundResource(stop);
+            mPlaytv.setText("");
+            mPlaytv.setText("STOP");
+            animation = ObjectAnimator.ofInt(mProgressBar, "progress", 0, 6*60000);
+            animation.setDuration(6000);
+            animation.setInterpolator(new DecelerateInterpolator());
+            animation.start();
+        }else{
+            //user clicked on pause button so let the button back to "PLAY"
+            playBtn.setBackgroundResource(R.mipmap.play);
+            mPlaytv.setText("");
+            mPlaytv.setText("PLAY");
+            mChronometer.stop();
+            mChronometer.setFormat(null);
+            animation.cancel();
+            //mProgressBar.clearAnimation();
         }
+
+    }
+
+    protected Boolean checkSoundStatus(){
+        String status = mPlaytv.getText().toString();
+        return status == ("STOP")? true:false;
+    }
+    protected void MinMinusClicked(View v){
+        mediDuration = new Long(parseLong(mMintv.getText().toString()));
+
+        if(mediDuration <= 1){
+            return;
+        }
+        mediDuration--;
+        mMintv.setText("");
+        mMintv.setText(String.valueOf(mediDuration));
+    }
+
+    protected void MinPlusClicked(View v){
+        mediDuration = new Long(parseLong(mMintv.getText().toString()));
+        mediDuration++;
+        mMintv.setText("");
+        mMintv.setText(String.valueOf(mediDuration));
     }
 
     @Override
@@ -93,9 +168,15 @@ public class Main2Activity extends AppCompatActivity {
         }
     }
 
-    protected void setDurationClicked(View v){
-
+    @Override
+    public void onChronometerTick(Chronometer chronometer) {
+        String meditationTime = mMintv.getText().toString();
+        String ChronometerTime = "\"0" + meditationTime + ":00\"";
+        if(chronometer.getText().toString().equalsIgnoreCase(ChronometerTime)){
+            mChronometer.stop();
+            mChronometer.setFormat(null);
+            animation.cancel();
+        }
     }
-
 }
 
