@@ -18,7 +18,9 @@ public class SelectSound extends Activity {
         setContentView(R.layout.activity_select_sound);
 
         mListView = (ListView) findViewById(R.id.list);
-        String [] titles = new String[]{"Singing Bowl", "Peaceful Woods", "Cave", "Waves", "Wind"};
+        String [] titles = new String[]{"Singing Bowl", "Peaceful Woods", "Cave", "Waves", "Wind", "Body Scan for Sleep",
+                "Body Scan Meditation", "Body Sound Meditation", "Breathing Meditation", "Breath, Sound, Body Meditation",
+                "Loving Kindness Meditation", "Working with Difficulties", "Complete Meditation Instruction"};
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, titles);
 

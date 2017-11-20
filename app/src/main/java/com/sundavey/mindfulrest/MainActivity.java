@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Chronometer;
@@ -22,8 +23,8 @@ import static java.lang.Long.valueOf;
 
 public class MainActivity extends AppCompatActivity implements OnChronometerTickListener{
 
-    private ImageButton playBtn;
-    private TextView mSoundView, mPlaytv, mMintv;
+    private ImageButton playBtn, minMinus, minPlus;
+    private TextView mSoundView, mPlaytv, mMintv, mMinLetter, mDuration;
     private MediaPlayer mMediaPlayer;
     private long mediDuration;
     private int soundPosition = -1;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements OnChronometerTick
     private Chronometer mChronometer;
     private ObjectAnimator animation;
     private Sound mSound;
+    private Boolean presetSound;
 
     protected MediaPlayer.OnCompletionListener mCompleteListner = new MediaPlayer.OnCompletionListener() {
         @Override
@@ -53,22 +55,26 @@ public class MainActivity extends AppCompatActivity implements OnChronometerTick
         sounds.add(new Sound("Waves","1min 16sec", R.raw.waves ));
         sounds.add(new Sound("Wind", "48sec", R.raw.wind));
         //these will be pre set timed meditation
-        /*sounds.add(new Sound("Body Scan for Sleep", "13:50", R.raw.body_scan_for_sleep));
+        sounds.add(new Sound("Body Scan for Sleep", "13:50", R.raw.body_scan_for_sleep));
         sounds.add(new Sound("Body Scan Meditation", "02:44", R.raw.body_scan_meditation));
         sounds.add(new Sound("Body Sound Meditation", "03:06", R.raw.body_sound_meditation));
         sounds.add(new Sound("Breathing Meditation", "05:31", R.raw.breating_meditation));
         sounds.add(new Sound("Breath, Sound, Body Meditation", "12:00", R.raw.breath_sound_body_meditation));
         sounds.add(new Sound("Loving Kindness Meditation", "09:31", R.raw.loving_kindness_meditation));
         sounds.add(new Sound("Working with Difficulties","06:55", R.raw.working_with_difficulties_meditation));
-        sounds.add(new Sound("Complete Meditation Instruction", "19:00", R.raw.complete_meditation));*/
+        sounds.add(new Sound("Complete Meditation Instruction", "19:00", R.raw.complete_meditation));
 
         ImageButton selectSoundBtn = (ImageButton) findViewById(R.id.selectSound);
         playBtn = (ImageButton) findViewById(R.id.playbtn);
-        mMintv = (TextView) findViewById(R.id.minuteInput);
+        mMintv  = (TextView) findViewById(R.id.minuteInput);
         mSoundView = (TextView) findViewById(sound);
         mPlaytv = (TextView) findViewById(R.id.playtv);
         mProgressBar = (ProgressBar) findViewById(R.id.circularProgressBar);
         mChronometer = (Chronometer) findViewById(R.id.chronometer);
+        minMinus = (ImageButton) findViewById(R.id.minMinus);
+        minPlus = (ImageButton) findViewById(R.id.minPlus);
+        mMinLetter = (TextView) findViewById(R.id.min);
+        mDuration = (TextView) findViewById(R.id.duration);
 
         selectSoundBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,7 +96,15 @@ public class MainActivity extends AppCompatActivity implements OnChronometerTick
             @Override
             public void onChronometerTick(Chronometer chronometer) {
                 String meditationTime = mMintv.getText().toString();
-                String ChronometerTime = "0" + meditationTime + ":00";
+                String ChronometerTime;
+                if (presetSound) {
+                    meditationTime = mMinLetter.getText().toString();
+                    ChronometerTime = String.valueOf(meditationTime);
+                    Log.d("length", ChronometerTime);
+                }else{
+                    meditationTime = mMintv.getText().toString();
+                    ChronometerTime = "\"0" + meditationTime + ":00\"";
+                }
                 if(chronometer.getText().toString().equalsIgnoreCase(ChronometerTime)){
                     mChronometer.stop();
                     mChronometer.setFormat(null);
@@ -106,9 +120,16 @@ public class MainActivity extends AppCompatActivity implements OnChronometerTick
     }
 
     protected void StartBtnClicked(View v){
+        String mediduration;
+        long mChronometerTime;
 
-        String mediduration = mMintv.getText().toString();
-        long mChronometerTime = valueOf(mediduration).intValue() * 60000;
+        if(presetSound){
+            mChronometerTime = timeConverter(mMinLetter.getText().toString());
+
+        }else{
+            mediduration = mMintv.getText().toString();
+            mChronometerTime = valueOf(mediduration).intValue() * 60000;
+        }
 
         if(soundPosition == -1){
             mSound = sounds.get(0);
@@ -141,14 +162,12 @@ public class MainActivity extends AppCompatActivity implements OnChronometerTick
 
     protected void playHelper(){
         playBtn.setBackgroundResource(R.mipmap.play);
-        mPlaytv.setText("");
-        mPlaytv.setText("PLAY");
+        mPlaytv.setText("" + "PLAY");
     }
 
     protected void stopHelper(){
         playBtn.setBackgroundResource(stop);
-        mPlaytv.setText("");
-        mPlaytv.setText("STOP");
+        mPlaytv.setText("" + "STOP");
     }
 
     protected Boolean checkSoundStatus(){
@@ -161,15 +180,13 @@ public class MainActivity extends AppCompatActivity implements OnChronometerTick
             return;
         }
         mediDuration--;
-        mMintv.setText("");
-        mMintv.setText(String.valueOf(mediDuration));
+        mMintv.setText("" + String.valueOf(mediDuration));
     }
 
     protected void MinPlusClicked(View v){
         mediDuration = Long.valueOf(mMintv.getText().toString());
         mediDuration++;
-        mMintv.setText("");
-        mMintv.setText(String.valueOf(mediDuration));
+        mMintv.setText("" + String.valueOf(mediDuration));
     }
 
     @Override
@@ -178,6 +195,24 @@ public class MainActivity extends AppCompatActivity implements OnChronometerTick
         if(requestCode == 1){
             String title = data.getStringExtra("Title");
             soundPosition = data.getIntExtra("Position", 1);
+            if(soundPosition > 4){
+                Sound currentSound = sounds.get(soundPosition);
+                String soundLength = currentSound.getSoundLength();
+                mMintv.setVisibility(View.GONE);
+                mMinLetter.setText("" + soundLength);
+                minMinus.setVisibility(View.GONE);
+                minPlus.setVisibility(View.GONE);
+                mDuration.setText("" + "Duration");
+                presetSound = true;
+            }
+            else{
+                mMintv.setVisibility(View.VISIBLE);
+                mMinLetter.setText("Min");
+                minMinus.setVisibility(View.VISIBLE);
+                minPlus.setVisibility(View.VISIBLE);
+                mDuration.setText("Set Duration");
+                presetSound = false;
+            }
             mSoundView.setText("");
             mSoundView.setText(title);
         }
@@ -193,12 +228,30 @@ public class MainActivity extends AppCompatActivity implements OnChronometerTick
     @Override
     public void onChronometerTick(Chronometer chronometer) {
         String meditationTime = mMintv.getText().toString();
-        String ChronometerTime = "\"0" + meditationTime + ":00\"";
+        String ChronometerTime;
+        if (presetSound) {
+            ChronometerTime = String.valueOf(mMinLetter);
+        }else{
+            ChronometerTime = "\"0" + meditationTime + ":00\"";
+        }
         if(chronometer.getText().toString().equalsIgnoreCase(ChronometerTime)){
             mChronometer.stop();
             mChronometer.setFormat(null);
             animation.cancel();
         }
+    }
+
+    protected Long timeConverter(String time){
+        String[] seperated = time.split(":");
+
+        long min = Integer.parseInt(seperated[0]);
+        long sec = Integer.parseInt(seperated[1]);
+
+        long minToMillisec = min * 60000;
+        long secToMillisec = sec * 1000;
+
+        long totalMillisec = minToMillisec + secToMillisec;
+        return totalMillisec;
     }
 }
 

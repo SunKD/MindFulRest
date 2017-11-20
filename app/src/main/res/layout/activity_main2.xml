@@ -23,6 +23,7 @@
             android:background="@mipmap/settime"/>
 
         <TextView
+            android:id="@+id/duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
@@ -42,8 +43,8 @@
 
         <ImageButton
             android:id="@+id/minMinus"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
             android:onClick="MinMinusClicked"
             android:textColor="#1c265e"
             android:background="@drawable/minus"/>
@@ -51,17 +52,17 @@
         <TextView
             android:id="@+id/minuteInput"
             android:layout_width="25dp"
-            android:layout_height="wrap_content"
+            android:layout_height="55dp"
             android:ems="2"
             android:text="6"
             android:textStyle="bold"
-            android:textSize="25sp"
+            android:textSize="30sp"
             android:textColor="#1c265e"
             android:textAlignment="center"
             android:inputType="number"/>
 
         <TextView
-            android:id="@+id/editText"
+            android:id="@+id/min"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Min"
@@ -69,10 +70,10 @@
             android:textColor="#1c265e"
             android:textAlignment="center"/>
 
-        <Button
+        <ImageButton
             android:id="@+id/minPlus"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
             android:textColor="#1c265e"
             android:background="@drawable/plus"
             android:onClick="MinPlusClicked"/>
@@ -119,8 +120,8 @@
         android:textAlignment="center"
         android:textColor="#1c265e"
         android:textStyle="bold"
-        android:textSize="16sp"
-        android:layout_marginTop="40dp"/>
+        android:textSize="18sp"
+        android:layout_marginTop="20dp"/>
     <TextView
         android:id="@+id/sound"
         android:layout_width="match_parent"
@@ -129,7 +130,7 @@
         android:textAlignment="center"
         android:textColor="#1c265e"
         android:textStyle="bold"
-        android:textSize="20sp"
+        android:textSize="22sp"
         android:text="Singing Bowl"
         android:layout_marginTop="20dp"/>
 
@@ -142,8 +143,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginTop="20dp">
+            android:orientation="vertical">
 
             <ImageButton
                 android:id="@+id/playbtn"
@@ -170,7 +170,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:layout_marginTop="20dp"
             android:orientation="vertical">
 
             <ImageButton
