@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements OnChronometerTick
     private Chronometer mChronometer;
     private ObjectAnimator animation;
     private Sound mSound;
-    private Boolean presetSound;
+    private Boolean presetSound = false;
 
     protected MediaPlayer.OnCompletionListener mCompleteListner = new MediaPlayer.OnCompletionListener() {
         @Override
@@ -62,19 +62,19 @@ public class MainActivity extends AppCompatActivity implements OnChronometerTick
         sounds.add(new Sound("Breath, Sound, Body Meditation", "12:00", R.raw.breath_sound_body_meditation));
         sounds.add(new Sound("Loving Kindness Meditation", "09:31", R.raw.loving_kindness_meditation));
         sounds.add(new Sound("Working with Difficulties","06:55", R.raw.working_with_difficulties_meditation));
-        sounds.add(new Sound("Complete Meditation Instruction", "19:00", R.raw.complete_meditation));
+        //sounds.add(new Sound("Complete Meditation Instruction", "19:00", R.raw.complete_meditation));
 
-        ImageButton selectSoundBtn = (ImageButton) findViewById(R.id.selectSound);
-        playBtn = (ImageButton) findViewById(R.id.playbtn);
-        mMintv  = (TextView) findViewById(R.id.minuteInput);
-        mSoundView = (TextView) findViewById(sound);
-        mPlaytv = (TextView) findViewById(R.id.playtv);
-        mProgressBar = (ProgressBar) findViewById(R.id.circularProgressBar);
-        mChronometer = (Chronometer) findViewById(R.id.chronometer);
-        minMinus = (ImageButton) findViewById(R.id.minMinus);
-        minPlus = (ImageButton) findViewById(R.id.minPlus);
-        mMinLetter = (TextView) findViewById(R.id.min);
-        mDuration = (TextView) findViewById(R.id.duration);
+        ImageButton selectSoundBtn  = (ImageButton) findViewById(R.id.selectSound);
+        playBtn                     = (ImageButton) findViewById(R.id.playbtn);
+        mMintv                      = (TextView) findViewById(R.id.minuteInput);
+        mSoundView                  = (TextView) findViewById(sound);
+        mPlaytv                     = (TextView) findViewById(R.id.playtv);
+        mProgressBar                = (ProgressBar) findViewById(R.id.circularProgressBar);
+        mChronometer                = (Chronometer) findViewById(R.id.chronometer);
+        minMinus                    = (ImageButton) findViewById(R.id.minMinus);
+        minPlus                     = (ImageButton) findViewById(R.id.minPlus);
+        mMinLetter                  = (TextView) findViewById(R.id.min);
+        mDuration                   = (TextView) findViewById(R.id.duration);
 
         selectSoundBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements OnChronometerTick
                     animation.cancel();
                 }
                 Intent intent = new Intent(MainActivity.this, SelectSound.class);
+                Bundle soundArrayList = new Bundle();
                 startActivityForResult(intent, 1);
             }
         });
@@ -95,8 +96,9 @@ public class MainActivity extends AppCompatActivity implements OnChronometerTick
         mChronometer.setOnChronometerTickListener(new OnChronometerTickListener() {
             @Override
             public void onChronometerTick(Chronometer chronometer) {
-                String meditationTime = mMintv.getText().toString();
+                String meditationTime;
                 String ChronometerTime;
+
                 if (presetSound) {
                     meditationTime = mMinLetter.getText().toString();
                     ChronometerTime = String.valueOf(meditationTime);
@@ -120,14 +122,13 @@ public class MainActivity extends AppCompatActivity implements OnChronometerTick
     }
 
     protected void StartBtnClicked(View v){
-        String mediduration;
         long mChronometerTime;
 
         if(presetSound){
             mChronometerTime = timeConverter(mMinLetter.getText().toString());
 
         }else{
-            mediduration = mMintv.getText().toString();
+            String mediduration = mMintv.getText().toString();
             mChronometerTime = valueOf(mediduration).intValue() * 60000;
         }
 
@@ -176,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements OnChronometerTick
     }
     protected void MinMinusClicked(View v){
         mediDuration = Long.valueOf(mMintv.getText().toString());
+
         if(mediDuration <= 1){
             return;
         }
@@ -192,9 +194,11 @@ public class MainActivity extends AppCompatActivity implements OnChronometerTick
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if(requestCode == 1){
             String title = data.getStringExtra("Title");
             soundPosition = data.getIntExtra("Position", 1);
+            //from the 5th sound will be preset meditation, this will get rid of any user interfaces relate to time change
             if(soundPosition > 4){
                 Sound currentSound = sounds.get(soundPosition);
                 String soundLength = currentSound.getSoundLength();
@@ -252,6 +256,26 @@ public class MainActivity extends AppCompatActivity implements OnChronometerTick
 
         long totalMillisec = minToMillisec + secToMillisec;
         return totalMillisec;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 }
 
